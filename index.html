@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        #color {
+            padding: 5rem;
+            font-size: 5rem;
+            margin-left: 15rem;
+        }
+    </style>
+</head>
+<body>
+    <form action="">
+        <input data-jscolor="" id="sColor">
+    </form>
+    <div id="color">
+        Mi Sitio Web
+    </div>
+<script src="./jscolor.min.js"></script>
+<script src="//unpkg.com/brain.js"></script>
+<script>
+    var myPicker = new JSColor('#sColor', {format:'hex'});
+    
+    var network = new brain.NeuralNetwork();
+
+    network.train([
+        //Fondo Negro, Texto Blanco
+        {input: {rojo:0, verde:0, azul:0}, output: {color:1}},
+        //Fondo Blanco, Texto Negro
+        {input: {rojo:1, verde:1, azul:1}, output: {color:0}},
+        //Fondo Verde, Texto Negro
+        {input: {rojo:0, verde:1, azul:0}, output: {color:0}},
+        // Fondo Azul, Texto Blanco
+        {input: {rojo:1, verde:.43, azul:1}, output: {color:1}}
+    ])
+
+    var colorPicker = document.getElementById("sColor")
+    colorPicker.addEventListener("change", cambio, false);
+    function cambio(event) {
+        //Coloca fondo del Contenedor
+        var div = document.getElementById("color");
+        div.style.background = event.target.value; 
+
+    //Logica de red neuronal
+        //Parametros de entrada
+        var entrada = {
+            rojo: myPicker.channel('R')/255,
+            verde: myPicker.channel('G')/255,
+            azul: myPicker.channel('B')/255
+        }
+
+        //Ejecutamos la red 
+        var res = network.run(entrada);
+        
+        if(res.color > .5){
+            div.style.color = "white";
+        }else{
+            div.style.color = "black";
+        }
+    }
+</script>
+</body>
+</html>
